@@ -48,7 +48,7 @@ public class ProductController {
 
 
     // TODO set auth Principal
-    @DeleteMapping("/{identifier}")
+    @DeleteMapping("/p/{identifier}")
     public ResponseEntity<String> deleteProductByIdentity(@PathVariable String identifier, Principal principal) {
         String res = productService.deleteProduct(identifier, principal.getName());
         return new ResponseEntity<>(res, HttpStatus.OK);
