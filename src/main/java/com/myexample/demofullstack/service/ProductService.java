@@ -4,10 +4,10 @@ import com.myexample.demofullstack.exception.GeneralNotFoundException;
 import com.myexample.demofullstack.model.AppUser;
 import com.myexample.demofullstack.model.Product;
 import com.myexample.demofullstack.repository.ProductRepository;
-import com.myexample.demofullstack.s3.S3BucketName;
 import com.myexample.demofullstack.s3.S3FileStore;
 import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,6 +27,8 @@ public class ProductService {
     private UserService userService;
     @Autowired
     private S3FileStore fileStore;
+    @Autowired
+    private Environment env;
 
 
     public Product createProduct(Product product, MultipartFile file, String username){
@@ -99,12 +101,12 @@ public class ProductService {
     private void uploadProductImage(Product product, MultipartFile file) {
         Map<String, String> metadata = getFileMetadata(file);
 
-        String path = String.format("%s/%s/%s", S3BucketName.PROFILE_IMAGE.getBucketName(), product.getOwnerName(), product.getIdentifier());
+        String path = String.format("%s/%s/%s", env.getProperty("S3BucketName"), product.getOwnerName(), product.getIdentifier());
         String fileName = file.getOriginalFilename();
         String savedPath = String.format("%s/%s/%s", product.getOwnerName(), product.getIdentifier(),fileName);
         try {
             fileStore.save(path, fileName, Optional.of(metadata), file.getInputStream());
-            product.setImageUrl(String.format("https://%s.s3-ap-southeast-1.amazonaws.com/%s", S3BucketName.PROFILE_IMAGE.getBucketName(), savedPath));
+            product.setImageUrl(String.format("https://%s.s3-ap-southeast-1.amazonaws.com/%s", env.getProperty("S3BucketName"), savedPath));
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }

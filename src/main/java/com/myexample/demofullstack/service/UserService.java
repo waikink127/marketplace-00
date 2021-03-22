@@ -1,13 +1,12 @@
 package com.myexample.demofullstack.service;
 
-import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.myexample.demofullstack.dto.EditUserRequestDto;
 import com.myexample.demofullstack.exception.UserAlreadyExistException;
 import com.myexample.demofullstack.model.AppUser;
 import com.myexample.demofullstack.repository.AppUserRepository;
-import com.myexample.demofullstack.s3.S3BucketName;
 import com.myexample.demofullstack.s3.S3FileStore;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,6 +30,8 @@ public class UserService {
     private BCryptPasswordEncoder encoder;
     @Autowired
     private S3FileStore fileStore;
+    @Autowired
+    private Environment env;
 
     public AppUser createUser(AppUser user) {
         try {
@@ -80,12 +81,12 @@ public class UserService {
     private void uploadUserProfileImage(AppUser user, MultipartFile file) {
         Map<String, String> metadata = getFileMetadata(file);
 
-        String path = String.format("%s/%s/profile", S3BucketName.PROFILE_IMAGE.getBucketName(), user.getUsername());
+        String path = String.format("%s/%s/profile", env.getProperty("S3BucketName"), user.getUsername());
         String fileName = file.getOriginalFilename();
         String savedPath = String.format("%s/profile/%s", user.getUsername(), fileName);
         try {
             fileStore.save(path, fileName, Optional.of(metadata), file.getInputStream());
-            user.setProfilePictureUrl(String.format("https://%s.s3-ap-southeast-1.amazonaws.com/%s", S3BucketName.PROFILE_IMAGE.getBucketName(), savedPath));
+            user.setProfilePictureUrl(String.format("https://%s.s3-ap-southeast-1.amazonaws.com/%s", env.getProperty("S3BucketName"), savedPath));
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }

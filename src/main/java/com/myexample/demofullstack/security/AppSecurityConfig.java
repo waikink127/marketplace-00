@@ -8,14 +8,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import java.net.http.HttpRequest;
 
 @EnableWebSecurity
 @Configuration
@@ -25,15 +23,6 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
     private AppUserDetailsService appUserDetailsService;
     @Autowired
     private BCryptPasswordEncoder encoder;
-
-//    @Override
-//    protected void configure(HttpSecurity http) throws Exception {
-//        http.cors().and().csrf().disable()
-//                .authorizeRequests()
-//                .anyRequest().permitAll()
-//                .and()
-//                .headers().frameOptions().disable();
-//    }
 
 
     @Override
@@ -45,8 +34,9 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
+                .antMatchers(HttpMethod.GET, "/*").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/users/**").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/**").hasRole("ADMIN")
                 .antMatchers(HttpMethod.POST,"/login").permitAll()
                 .anyRequest().authenticated()
                 .and()
@@ -60,12 +50,6 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
         auth.userDetailsService(appUserDetailsService).passwordEncoder(encoder);
     }
 
-//    @Bean
-//    public JwtUsernamePasswordAuthFilter jwtUsernamePasswordAuthFilter() throws Exception {
-//        JwtUsernamePasswordAuthFilter filter = new JwtUsernamePasswordAuthFilter(authenticationManagerBean());
-//        filter.setFilterProcessesUrl("/users/login");
-//        return filter;
-//    }
 
     @Bean
     public JwtVerifier jwtVerifier() {

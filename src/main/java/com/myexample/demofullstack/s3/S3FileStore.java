@@ -3,9 +3,7 @@ package com.myexample.demofullstack.s3;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
-import com.amazonaws.util.IOUtils;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,17 +35,4 @@ public class S3FileStore {
         }
     }
 
-
-
-
-
-//    public byte[] download(String path, String key) {
-//        try{
-//            S3Object object =  s3.getObject(path, key);
-//            S3ObjectInputStream inputStream = object.getObjectContent();
-//            return IOUtils.toByteArray(inputStream);
-//        } catch (AmazonServiceException | IOException e){
-//            throw new IllegalStateException("Fail to download", e);
-//        }
-//    }
 }

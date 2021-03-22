@@ -21,7 +21,7 @@ public class S3Config {
         AWSCredentials credentials = new BasicAWSCredentials(env.getProperty("AWSAccessKeyId"), env.getProperty("AWSSecretKey"));
         return AmazonS3ClientBuilder
                 .standard()
-                .withRegion("ap-southeast-1")
+                .withRegion(env.getProperty("S3Region"))
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
                 .build();
     }
